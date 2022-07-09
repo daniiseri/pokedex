@@ -7,25 +7,32 @@ const fetchPokemon = ()=>{
       fetch(getPokemonUrl(i)).then((res)=>res.json())
     );
   }
-
-  Promise.all(pokemonPromises).then((pokemons)=>{
-    const listPokemons = pokemons.reduce((accumulator, pokemon)=>{
-      const types = pokemon.types.map((typeInfo)=>typeInfo.type.name);
-
-      accumulator += `
-                    <li class="card ${types[0]}">
-                    <img class="card-image" alt="${pokemon.name}" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png">
-                    <h2 class="card-title">${pokemon.id}. ${pokemon.name}</h2>
-                    <p class="card-subtitle">${types.join(" | ")}</p>
-                    </li>`;  
-      return accumulator;
-    }, 
-    "");
-
-    const ul = document.querySelector('.pokedex');
-
-    ul.innerHTML =listPokemons;
-  });
+  Promise.all(pokemonPromises).then((pokemons)=>getPokemon(pokemons))
 }
- 
+
+const getPokemon = (pokemons)=>{
+  const listPokemons = pokemons.reduce((accumulator, pokemon)=>{
+    const types = pokemon.types.map(typeInfo=>typeInfo.type.name);
+    const name = pokemon.name;
+    const weight = pokemon.weight;
+    const height = pokemon.height;
+    const id = pokemon.id;
+
+    accumulator += Html({types, name, weight, height, id});
+
+    return accumulator;
+  }, "")
+  const ul = document.querySelector('[data="pokedex"]');
+  ul.innerHTML = listPokemons;
+}
+
+const Html = (data)=>{
+  return  `
+          <li class="card ${data.types[0]}">
+          <img class="card-image" alt="${data.name}" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.id}.png">
+          <h2 class="card-title">${data.id}. ${data.name}</h2>
+          <p class="card-subtitle">${data.types.join(" | ")}<br> weight: ${data.weight}. height: ${data.height}</p>
+          </li>`;
+}
+
 fetchPokemon();
